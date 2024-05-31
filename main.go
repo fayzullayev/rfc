@@ -16,7 +16,7 @@ type ComponentTemplData struct {
 func main() {
 	currentFolder, err := os.Getwd()
 	if err != nil {
-		log.Fatal("Something went wrong: ", err)
+		log.Fatal("Something went wrong.: ", err)
 	}
 
 	args := os.Args
