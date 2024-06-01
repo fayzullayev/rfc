@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"log"
 	"os"
@@ -11,7 +12,11 @@ import (
 
 type ComponentTemplData struct {
 	Name string
+	File string
 }
+
+//go:embed "templates"
+var Files embed.FS
 
 func main() {
 	currentFolder, err := os.Getwd()
@@ -48,6 +53,8 @@ func main() {
 
 	fmt.Printf("Component name: %s\n", componentName)
 
+	//creating component file
+
 	file, err := os.Create(path.Join(fullPath, folder+".tsx"))
 
 	if err != nil {
@@ -64,8 +71,9 @@ func main() {
 		Name: componentName,
 	}
 
-	var tmplFile = "./templates/component.templ"
-	tmpl, err := template.New("").ParseFiles(tmplFile)
+	//var tmplFiles = "templates"
+
+	tmpl, err := template.ParseFS(Files, "./component.templ")
 	if err != nil {
 		panic(err)
 	}
@@ -74,4 +82,68 @@ func main() {
 		panic(err)
 	}
 
+	//creating component file
+
+	//creating styles file
+
+	file2, err := os.Create(path.Join(fullPath, "style.ts"))
+
+	if err != nil {
+		log.Fatal("File creation failed: ", err)
+	}
+	defer func(file *os.File) {
+		err = file.Close()
+		if err != nil {
+			log.Fatal("File creation failed: ", err)
+		}
+	}(file2)
+
+	componentTemplData2 := ComponentTemplData{
+		Name: componentName,
+	}
+
+	//var tmplFiles = "templates"
+
+	tmpl2, err := template.ParseFS(Files, "./style.templ")
+	if err != nil {
+		panic(err)
+	}
+	err = tmpl2.Execute(file2, componentTemplData2)
+	if err != nil {
+		panic(err)
+	}
+
+	//creating styles file
+
+	//creating index file
+
+	file3, err := os.Create(path.Join(fullPath, "index.ts"))
+
+	if err != nil {
+		log.Fatal("File creation failed: ", err)
+	}
+	defer func(file *os.File) {
+		err = file.Close()
+		if err != nil {
+			log.Fatal("File creation failed: ", err)
+		}
+	}(file3)
+
+	componentTemplData3 := ComponentTemplData{
+		Name: componentName,
+		File: folder,
+	}
+
+	//var tmplFiles = "templates"
+
+	tmpl3, err := template.ParseFS(Files, "./index.templ")
+	if err != nil {
+		panic(err)
+	}
+	err = tmpl3.Execute(file3, componentTemplData3)
+	if err != nil {
+		panic(err)
+	}
+
+	//creating styles file
 }
