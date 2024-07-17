@@ -60,7 +60,7 @@ func GetMetaData(packageType string, packageName string) FileMetaData {
 		log.Fatal("Folder name is too short")
 	}
 
-	fullPath := filepath.Join(currentFolder, packageType, packageName)
+	fullPath := filepath.Join(currentFolder, "src", packageType, packageName)
 
 	if err != nil {
 		log.Fatal("Folder creation failed: ", err)
