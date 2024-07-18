@@ -66,6 +66,12 @@ func GetMetaData(packageType string, packageName string) FileMetaData {
 		log.Fatal("Folder creation failed: ", err)
 	}
 
+	_, after, found := strings.Cut(packageName, "/")
+
+	if found {
+		packageName = after
+	}
+
 	names := strings.Split(packageName, "-")
 	for i, name := range names {
 		newName := strings.ToUpper(name[:1]) + strings.ToLower(name[1:])

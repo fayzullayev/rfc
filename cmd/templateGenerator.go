@@ -27,7 +27,7 @@ var templateGeneratorCmd = &cobra.Command{
 			if isComponent {
 				metaData = generator.GetMetaData("components", args[0])
 			} else {
-				metaData = generator.GetMetaData("page", args[0])
+				metaData = generator.GetMetaData("pages", args[0])
 			}
 
 			if err := generator.CreateFile(metaData, metaData.FolderName+".tsx", "component"); err != nil {
