@@ -50,7 +50,7 @@ func CreateFile(metaData FileMetaData, filename, templateName string) error {
 	return nil
 }
 
-func GetMetaData(packageType string, packageName string) FileMetaData {
+func GetMetaData(packageType string, packageName string, isPWD bool) FileMetaData {
 	currentFolder, err := os.Getwd()
 	if err != nil {
 		log.Fatal("Something went wrong: ", err)
@@ -60,7 +60,12 @@ func GetMetaData(packageType string, packageName string) FileMetaData {
 		log.Fatal("Folder name is too short")
 	}
 
-	fullPath := filepath.Join(currentFolder, "src", packageType, packageName)
+	var fullPath string
+	if isPWD {
+		fullPath = filepath.Join(currentFolder, packageName)
+	} else {
+		fullPath = filepath.Join(currentFolder, "src", packageType, packageName)
+	}
 
 	if err != nil {
 		log.Fatal("Folder creation failed: ", err)
