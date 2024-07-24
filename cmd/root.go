@@ -1,31 +1,58 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
 	"os"
+	"rfc/generator"
+	"rfc/utils"
 
 	"github.com/spf13/cobra"
 )
 
-// rootCmd represents the base command when called without any subcommands
+
 var rootCmd = &cobra.Command{
 	Use:   "rfc",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "CLI tool for generating boilerplate code",
+	Long:  `CLI tool for generating boilerplate code of Web applications
+	Usage:
+	rfc -p packageName   // -p or --page
+	rfc -c example   // -c or --component
+	rfc -c example --pwd   // -c or --component, --pwd used to create page/component in current dir
+	`,
+	Args:  cobra.MinimumNArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		isPage, _ := cmd.Flags().GetBool("page")
+		isComponent, _ := cmd.Flags().GetBool("component")
+		isPWD, _ := cmd.Flags().GetBool("pwd")
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { fmt.Print("hello")},
+		if isPage || isComponent {
+			var metaData generator.FileMetaData
+
+			if isComponent {
+				metaData = generator.GetMetaData("components", args[0], isPWD)
+			} else {
+				metaData = generator.GetMetaData("pages", args[0], isPWD)
+			}
+
+			if err := generator.CreateFile(metaData, metaData.FolderName+".tsx", "component"); err != nil {
+				utils.LogErrorAndCleanup(err, metaData.FolderPath)
+				return
+			}
+
+			// creating styles file
+			if err := generator.CreateFile(metaData, "index.ts", "index"); err != nil {
+				utils.LogErrorAndCleanup(err, metaData.FolderPath)
+				return
+			}
+
+			// creating index file
+			if err := generator.CreateFile(metaData, "style.ts", "style"); err != nil {
+				utils.LogErrorAndCleanup(err, metaData.FolderPath)
+				return
+			}
+		}
+	},
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
@@ -34,14 +61,9 @@ func Execute() {
 }
 
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.rfc.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
+	rootCmd.PersistentFlags().BoolP("page", "p", false, "Generate page template")
+	rootCmd.PersistentFlags().BoolP("component", "c", false, "Generate component template")
+	rootCmd.PersistentFlags().Bool("pwd", false, "Generate page/component in current dir")
 }
 
 
